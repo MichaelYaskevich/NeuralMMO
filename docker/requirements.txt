@@ -17,5 +17,6 @@ nmmo==1.5.3.17a8
 https://gitlab.aicrowd.com/henryz/ijcai2022nmmo/-/archive/v0.2.14/ijcai2022nmmo-v0.2.14.tar.gz
 supersuit==3.3.5
 torch==1.10.0
+git+http://gitlab.aicrowd.com/henryz/ijcai2022nmmo.git
 
 
