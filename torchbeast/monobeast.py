@@ -62,6 +62,8 @@ parser.add_argument("--xpid", default=None,
                     help="Experiment id (default: None).")
 
 # Training settings.
+parser.add_argument("--pretrain_checkpoint", default=-1, type=int,
+                    help="Index of checkpoint from tools/loaded_results/nmmo")
 parser.add_argument("--disable_checkpoint", action="store_true",
                     help="Disable saving checkpoint.")
 parser.add_argument("--savedir", default="~/logs/torchbeast",
@@ -485,6 +487,9 @@ def train(flags):  # pylint: disable=too-many-branches, too-many-statements
     env = create_env(flags)
 
     model = Net(env.observation_space, env.action_space.n, flags.use_lstm)
+    model.load_state_dict(torch.load(os.path.join(
+        'tools', 'loaded_results', 'nmmo', f'model_{flags.pretrain_checkpoint}.pt'
+    ))['model_state_dict'])
     buffers = create_buffers(flags, env.observation_space, env.action_space.n)
 
     model.share_memory()
@@ -507,7 +512,10 @@ def train(flags):  # pylint: disable=too-many-branches, too-many-statements
 
     learner_model = Net(env.observation_space.shape, env.action_space.n,
                         flags.use_lstm).to(device=flags.device)
-
+    learner_model.load_state_dict(torch.load(os.path.join(
+        'tools', 'loaded_results', 'nmmo', f'model_{flags.pretrain_checkpoint}.pt'
+    ))['model_state_dict'])
+    
     optimizer = torch.optim.RMSprop(
         learner_model.parameters(),
         lr=flags.learning_rate,
