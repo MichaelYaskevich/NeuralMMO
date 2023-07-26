@@ -1,6 +1,8 @@
 import pandas as pd
 from matplotlib import pyplot as plt
 import argparse
+import os
+
 
 STATS = [
     "total_loss", "mean_episode_return", "mean_episode_step", "pg_loss",
@@ -30,9 +32,10 @@ def plot(log_file, window=500):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--logfile",
+        "--id",
         type=str,
-        default="results/nmmo/logs.csv",
+        default="96d8b5807255",
     )
     args = parser.parse_args()
-    plot(args.logfile)
+    os.system(f'docker cp {args.id}:ijcai2022-nmmo-baselines/results/nmmo/logs.csv logs.csv')
+    plot('logs.csv')
