@@ -1,1 +1,1 @@
-docker build -t neural_mmo .
+docker build -t neural-mmo-v2 .

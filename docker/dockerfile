@@ -1,50 +1,8 @@
-FROM cr.msk.sbercloud.ru/aicloud-jupyter-test/jupyter-cuda11.7-pt2:cbfa7664-374246
+FROM aicrowd/base-images:neural-mmo-py38
 
 USER root
 
+ADD requirements.txt /tmp/
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 605C66F00D6C9793 && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9 && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138 && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A4B469963BF863CC
-
-ARG DEBIAN_FRONTEND=noninteractive
-
-WORKDIR /puffertank
-
-RUN apt-get update
-RUN apt-get install -y \
-    # Basics
-    vim git cmake htop screen software-properties-common sudo \
-    # Python
-    && apt-add-repository ppa:deadsnakes/ppa \
-    && apt-get install -y python3.9 \
-    && apt-get install -y python3-pip \
-    # Clean
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
-
-
-# Pytorch
-ENV TORCH_VERSION=1.13.1
-ENV TORCHVISION_VERSION=0.14.1
-ENV TORCH_CUDA_VERSION=cu117
-
-RUN pip3 install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/${TORCH_CUDA_VERSION} \
-        torch==${TORCH_VERSION}+${TORCH_CUDA_VERSION} \
-        torchvision==${TORCHVISION_VERSION}+${TORCH_CUDA_VERSION}
-
-
-RUN echo 'export PYTHONPATH=.:${PYTHONPATH}' >> /root/.bashrc
-
-RUN git clone https://github.com/pufferai/pufferlib --single-branch --depth=1 && \
-    pip3 install -e pufferlib/[atari,cleanrl]
-RUN git clone https://github.com/neuralmmo/environment --single-branch --depth=1 environment && \
-    pip3 install -e environment
-RUN git clone https://github.com/neuralmmo/baselines --single-branch --depth=1 baselines && \
-    pip3 install -r baselines/requirements.txt
-
-
-ADD requirements.txt /tmp
-RUN pip3 install -r /tmp/requirements.txt
-
+RUN pip3 install git+http://gitlab.aicrowd.com/henryz/ijcai2022nmmo.git nmmo==1.5.3.17a8 --no-deps

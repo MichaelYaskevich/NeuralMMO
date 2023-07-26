@@ -1,8 +1,6 @@
 container:
-  image: "neural_mmo_baselines:latest"
-  command: python -m torchbeast.monobeast --total_steps 10000000000 --learning_rate 0.001 --entropy_cost 0.001 --num_actors 32 --num_learner 1 --batch_size 32 --unroll_length 32 --savedir ./results --checkpoint_interval 3600 --xpid nmmo
-  command: bash
-  
+  image: "neural-mmo-v2:latest"
+  command: python -m torchbeast.monobeast --total_steps 100000 --learning_rate 0.001 --entropy_cost 0.001 --num_actors 1 --num_learner 1 --batch_size 32 --unroll_length 32 --savedir ./results --checkpoint_interval 3600 --xpid nmmo
   tty: True
   environment:
     - "OMP_NUM_THREADS=1"
