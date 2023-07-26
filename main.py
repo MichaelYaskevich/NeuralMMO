@@ -15,14 +15,12 @@ def create_env():
 
 
 def main():
-    # env = create_env()
-    env = Environment(create_env())
-
-    env_output = env.initial()
-
-    # obs = env.reset()
-    # print(obs)
-
+    env = create_env()
+    obs = env.reset()
+    agent = obs[0]
+    print('\n')
+    for key in agent:
+        print(key, agent[key].shape)
 
 if __name__ == '__main__':
     main()
