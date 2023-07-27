@@ -125,7 +125,7 @@ class OurNeuralMMO(gym.Env):
     def __init__(self, ):
         cfg = CompetitionConfig()
         cfg.NMAPS = 4
-        self._env = TeamBasedEnv(config=cfg)
+        self._env = TrainWrapper(TeamBasedEnv(config=cfg))
 
     def step(self, actions):
         return self._env.step(actions)
@@ -138,7 +138,6 @@ class OurNeuralMMO(gym.Env):
 
 def create_env():
     env = OurNeuralMMO() 
-    env = TrainWrapper(env)
     env = ListWrapper(env)
     env = TruncatedTerminatedWrapper(env)
     env = IsMultiAgentWrapper(env)
