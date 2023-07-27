@@ -5,5 +5,6 @@ USER root
 ADD requirements.txt /tmp/
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-RUN pip3 install git+http://gitlab.aicrowd.com/henryz/ijcai2022nmmo.git nmmo==1.5.3.17a8 --no-deps
- pip3 install opencv-contrib-python==4.5.5.62 sample-factory==2.0.2  shimmy
+RUN pip install git+http://gitlab.aicrowd.com/henryz/ijcai2022nmmo.git nmmo==1.5.3.17a8 --no-deps
+RUN pip install sample-factory==2.0.2 opencv-contrib-python==4.5.5.62 shimmy
+RUN pip install -U pydantic
