@@ -23,7 +23,22 @@ from utils import TrainWrapper
 from gym import ObservationWrapper, spaces
 import torch
 import numpy as np
-from gym import ObservationWrapper, Wrapper
+from gym import Wrapper
+import gym
+
+class ObservationWrapper(Wrapper):
+
+    def reset(self, **kwargs):
+        obs = self.env.reset(**kwargs)
+        return self.observation(obs)
+
+    def step(self, action):
+        observation, reward, terminated, info = self.env.step(action)
+        return self.observation(observation), reward, terminated, info
+
+    def observation(self, observation):
+        """Returns a modified observation."""
+        raise NotImplementedError
 
 def add_extra_params_func(parser):
     """
@@ -81,7 +96,7 @@ class TruncatedTerminatedWrapper(Wrapper):
         return observations, rewards, terminated, truncated, infogs
 
     def reset(self, *args, **kwargs):
-        observations = self.env.reset(*args, **kwargs)
+        observations = self.env.reset()
         return observations, {}
 
 class AutoResetWrapper(Wrapper):
@@ -104,10 +119,25 @@ class IsMultiAgentWrapper(Wrapper):
     def num_agents(self):
         return self.get_num_agents()
 
+class OurNeuralMMO(gym.Env):
+    metadata = {'render.modes': ['human']}
+
+    def __init__(self, ):
+        cfg = CompetitionConfig()
+        cfg.NMAPS = 4
+        self._env = TeamBasedEnv(config=cfg)
+
+    def step(self, actions):
+        return self._env.step(actions)
+
+    def reset(self):
+        return self._env.reset()
+
+    def close(self):
+        self._env.close()
+
 def create_env():
-    cfg = CompetitionConfig()
-    cfg.NMAPS = 4
-    env = TeamBasedEnv(config=cfg)
+    env = OurNeuralMMO() 
     env = TrainWrapper(env)
     env = ListWrapper(env)
     env = TruncatedTerminatedWrapper(env)
@@ -129,6 +159,9 @@ def register_custom_components():
 
 
 def main():
+    #env = make_custom_multi_env_func(1, 2, 3, 4)
+    #q = env.reset()
+    #print(len(q)), exit(0) 
     """Script entry point."""
     register_custom_components()
     cfg = parse_custom_args()
