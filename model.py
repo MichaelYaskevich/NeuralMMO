@@ -21,9 +21,9 @@ class EncoderConfig(BaseModel):
         activation_func (Literal['ReLU', 'ELU']): Activation function to use. Default is 'ReLU'.
         hidden_size (int): Hidden size for extra fc layers. Default is 128.
     """
-    extra_fc_layers: int = 0
+    extra_fc_layers: int = 1
     num_filters: int = 64
-    num_res_blocks: int = 1
+    num_res_blocks: int = 8
     activation_func: Literal['ReLU', 'ELU', 'Mish'] = 'ReLU'
     hidden_size: int = 128
 
