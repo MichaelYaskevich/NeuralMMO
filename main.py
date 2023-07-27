@@ -93,7 +93,7 @@ class TruncatedTerminatedWrapper(Wrapper):
     def step(self, actions):
         observations, rewards, dones, infos = self.env.step(actions)
         terminated = truncated = dones
-        return observations, rewards, terminated, truncated, infogs
+        return observations, rewards, terminated, truncated, infos
 
     def reset(self, *args, **kwargs):
         observations = self.env.reset()
@@ -126,6 +126,7 @@ class OurNeuralMMO(gym.Env):
         cfg = CompetitionConfig()
         cfg.NMAPS = 4
         self._env = TrainWrapper(TeamBasedEnv(config=cfg))
+        self.action_space = self._env.action_space
 
     def step(self, actions):
         return self._env.step(actions)

@@ -188,6 +188,7 @@ class TrainWrapper(Wrapper):
         """neural network move + scripted attack"""
         decisions = {}
 
+        actions = {ind: val for ind, val in enumerate(actions)}
         # move decisions
         for agent_id, val in actions.items():
             if observations is not None and agent_id not in observations:
