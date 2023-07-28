@@ -88,7 +88,7 @@ class RewardParser:
 class TrainWrapper(Wrapper):
     max_step = 1024
     TT_ID = 0  # training team index
-    use_auxiliary_script = False
+    use_auxiliary_script = True
 
     def __init__(self, env: TeamBasedEnv) -> None:
         super().__init__(env)
@@ -105,7 +105,8 @@ class TrainWrapper(Wrapper):
         raw_obs = super().reset()
         obs = raw_obs[self.TT_ID]
         obs = self.feature_parser.parse(obs)
-
+        
+        
         self.reset_auxiliary_script(self.config)
         self.reset_scripted_team(self.config)
         self.agents = list(obs.keys())
@@ -143,6 +144,7 @@ class TrainWrapper(Wrapper):
 
         self._prev_raw_obs = raw_obs
         self._step += 1
+        
 
         if self._step >= self.max_step:
             done = {key: True for key in done.keys()}
