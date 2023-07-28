@@ -129,7 +129,7 @@ class OurNeuralMMO(gym.Env):
 
     def __init__(self, ):
         cfg = CompetitionConfig()
-        cfg.NMAPS = 4
+        cfg.NMAPS = 400
         self._env = TrainWrapper(TeamBasedEnv(config=cfg))
         self.action_space = self._env.action_space
 
