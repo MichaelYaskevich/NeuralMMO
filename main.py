@@ -79,6 +79,7 @@ class ListWrapper(ObservationWrapper):
     def step(self, actions):
         self._step += 1
         observations, rewards, dones, infos = self.env.step(actions)
+        
         rewards = [rewards[key] for key in sorted(rewards.keys())]
 
         terminated = [dones[key] for key in sorted(dones.keys())]

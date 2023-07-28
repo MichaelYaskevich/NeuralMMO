@@ -8,6 +8,7 @@ from ijcai2022nmmo.scripted import CombatTeam, ForageTeam, RandomTeam
 from ijcai2022nmmo.scripted.baselines import Scripted
 from ijcai2022nmmo.scripted.scripted_team import ScriptedTeam
 
+from scripted import AttackTeamWithoutFF
 
 class FeatureParser:
     map_size = 15
@@ -100,12 +101,14 @@ class TrainWrapper(Wrapper):
             key: np.zeros(shape=val.shape, dtype=val.dtype)
             for key, val in self.observation_space.items()
         }
-
+        setattr(self.env.config, "player_team_map", env.player_team_map)
+        setattr(self.env.config, "team_players_map", env.team_players_map)
+       
+        
     def reset(self):
         raw_obs = super().reset()
         obs = raw_obs[self.TT_ID]
         obs = self.feature_parser.parse(obs)
-        
         
         self.reset_auxiliary_script(self.config)
         self.reset_scripted_team(self.config)
@@ -117,7 +120,9 @@ class TrainWrapper(Wrapper):
         return obs
 
     def step(self, actions):
+        
         decisions = self.get_scripted_team_decision(self._prev_raw_obs)
+       
         decisions[self.TT_ID] = self.transform_action(
             actions,
             observations=self._prev_raw_obs[self.TT_ID],
@@ -129,6 +134,7 @@ class TrainWrapper(Wrapper):
             done = raw_done[self.TT_ID]
             info = raw_info[self.TT_ID]
 
+            #print("OBS", list(obs.keys()))
             obs = self.feature_parser.parse(obs)
             achv = self.metrices_by_team()[self.TT_ID]
             
@@ -143,7 +149,12 @@ class TrainWrapper(Wrapper):
             self._prev_achv = achv
         else:
             obs, reward, done, info = {}, {}, {}, {}
-
+        
+        #print("AGENTS", self.agents)    
+        #print("ACT", actions)
+        #print("OBS", list(obs))
+        #print("PLAYERS", list(self.env.player_team_map))
+        
         for agent_id in self.agents:
             if agent_id not in obs:
                 obs[agent_id] = self._dummy_feature
@@ -165,7 +176,9 @@ class TrainWrapper(Wrapper):
         if getattr(self, "auxiliary_script", None) is not None:
             self.auxiliary_script.reset()
             return
-        self.auxiliary_script = AttackTeam("auxiliary", config)
+        #self.auxiliary_script = AttackTeam("auxiliary", config)
+        
+        self.auxiliary_script = AttackTeamWithoutFF("auxiliary", config)
 
     def reset_scripted_team(self, config):
         if getattr(self, "_scripted_team", None) is not None:
@@ -200,6 +213,7 @@ class TrainWrapper(Wrapper):
 
         actions = {ind: val for ind, val in enumerate(actions)}
         # move decisions
+        
         for agent_id, val in actions.items():
             if observations is not None and agent_id not in observations:
                 continue
@@ -213,18 +227,20 @@ class TrainWrapper(Wrapper):
                 }
             else:
                 raise ValueError(f"invalid action: {val}")
-
+            
+        
         # attack decisions
         if auxiliary_script is not None:
+           
             assert observations is not None
+            
             attack_decisions = auxiliary_script.act(observations)
+            
             # merge decisions
             for agent_id, d in decisions.items():
                 d.update(attack_decisions[agent_id])
                 decisions[agent_id] = d
         return decisions
-
-
 
 
 class Attack(Scripted):
@@ -233,7 +249,6 @@ class Attack(Scripted):
 
     def __call__(self, obs):
         super().__call__(obs)
-
         self.scan_agents()
         self.target_weak()
         self.style = nmmo.action.Range
