@@ -1,6 +1,7 @@
 container:
   image: "neural-mmo-v2:latest"
   command: python -m torchbeast.monobeast --total_steps 100000 --learning_rate 0.001 --entropy_cost 0.001 --num_actors 1 --num_learner 1 --batch_size 32 --unroll_length 32 --savedir ./results --checkpoint_interval 3600 --xpid nmmo --pretrain_checkpoint 218811392
+  command: python main.py
   tty: True
   environment:
     - "OMP_NUM_THREADS=1"
@@ -11,7 +12,7 @@ code:
   volumes: []
   folder: "."
   forward_environment_keys: [ "WANDB_API_KEY" ]
-  ignore: [ ".git" ]
+  ignore: [ ".git" , 'tools']
 host_config:
   runtime: nvidia
   shm_size: '64g'
