@@ -131,6 +131,14 @@ class TrainWrapper(Wrapper):
 
             obs = self.feature_parser.parse(obs)
             achv = self.metrices_by_team()[self.TT_ID]
+            
+            new_info = {}
+            for i in info.keys():
+                new_info[i] = {}
+                new_info[i]['verbose_achievements'] = info[i]
+                new_info[i]['achievements'] = achv[i]
+            info = new_info
+            
             reward = self.reward_parser.parse(self._prev_achv, achv)
             self._prev_achv = achv
         else:
