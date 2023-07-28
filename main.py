@@ -63,10 +63,10 @@ class ListWrapper(ObservationWrapper):
         
     def _convert_observation(self, obs):
        #TODO: replace with expand dims if possible
-       terrain, camp, entity = obs["terrain"], obs["camp"], torch.from_numpy(obs["entity"])
-       terrain = torch.from_numpy(terrain).unsqueeze(0)
-       camp = torch.from_numpy(camp).unsqueeze(0)
-       return torch.cat([terrain, camp, entity], dim=0).float().numpy()
+       terrain, camp, entity = obs["terrain"], obs["camp"], obs["entity"]
+       terrain = np.expand_dims(terrain, 0)
+       camp = np.expand_dims(camp, 0)
+       return np.concatenate([terrain, camp, entity], axis=0)
     
     
     def step(self, actions):
