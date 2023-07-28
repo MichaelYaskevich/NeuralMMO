@@ -59,13 +59,18 @@ class ListWrapper(ObservationWrapper):
     def __init__(self, env):
         super().__init__(env)
         self._team_index = 0
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(9, 15, 15), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(17, 15, 15), dtype=np.float32)
+        self.entity_maxed = np.array([10, 100, 1024, 100, 100, 100, 3])[:, None, None]
         
     def _convert_observation(self, obs):
        #TODO: replace with expand dims if possible
        terrain, camp, entity = obs["terrain"], obs["camp"], obs["entity"]
-       terrain = np.expand_dims(terrain, 0)
-       camp = np.expand_dims(camp, 0)
+       
+       terrain = np.moveaxis(np.eye(6)[terrain], [0, 1, 2], [1, 2, 0])
+       camp = np.moveaxis(np.eye(4)[camp], [0, 1, 2], [1, 2, 0])
+       
+       entity =  entity / self.entity_maxed
+
        return np.concatenate([terrain, camp, entity], axis=0)
     
     
@@ -79,7 +84,7 @@ class ListWrapper(ObservationWrapper):
         dones = [dones[key] for key in sorted(dones.keys())]
 
         # todo get information from infos
-        infos = [{} for _ in range(len(dones))]
+        infos = [{'is_active': dones[key]} for key in range(len(dones))]
         return self.observation(observations), rewards, dones, infos 
 
     def observation(self, observations):
