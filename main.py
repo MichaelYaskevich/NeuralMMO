@@ -58,6 +58,8 @@ def parse_custom_args(argv=None, evaluation=False):
 class ListWrapper(ObservationWrapper):
     def __init__(self, env):
         super().__init__(env)
+        self._step = 0
+        self.max_step = 1024
         self._team_index = 0
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(17, 15, 15), dtype=np.float32)
         self.entity_maxed = np.array([10, 100, 1024, 100, 100, 100, 3])[:, None, None]
@@ -75,17 +77,16 @@ class ListWrapper(ObservationWrapper):
     
     
     def step(self, actions):
+        self._step += 1
         observations, rewards, dones, infos = self.env.step(actions)
-        #print(rewards), exit(0)
-        #rewards = rewards[self._team_index]
         rewards = [rewards[key] for key in sorted(rewards.keys())]
-        
-        #dones = dones[self._team_index]
-        dones = [dones[key] for key in sorted(dones.keys())]
 
+        terminated = [dones[key] for key in sorted(dones.keys())]
+        
+        truncated = [self._step >= self.max_step for _ in dones]
         # todo get information from infos
         infos = [{'is_active': dones[key]} for key in range(len(dones))]
-        return self.observation(observations), rewards, dones, infos 
+        return self.observation(observations), rewards, terminated, truncated, infos 
 
     def observation(self, observations):
         results = []
@@ -96,8 +97,7 @@ class ListWrapper(ObservationWrapper):
 
 class TruncatedTerminatedWrapper(Wrapper):
     def step(self, actions):
-        observations, rewards, dones, infos = self.env.step(actions)
-        terminated = truncated = dones
+        observations, rewards, terminated, truncated, infos = self.env.step(actions)
         return observations, rewards, terminated, truncated, infos
 
     def reset(self, *args, **kwargs):
